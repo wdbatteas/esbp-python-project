@@ -300,6 +300,14 @@ def askForInput(titleBar, question: str = "Please type your response:", minWidth
 
 # drawWindowBuffered(titleBar, [f"{user_response}"])
 
+def getTerminalSize():
+    return os.get_terminal_size()
+
+def getTerminalHeight():
+    return getTerminalSize().lines
+
+def getTerminalWidth():
+    return getTerminalSize().columns
 
 # askMenuV2
 def askMenu( titleBar: str, choices: list, promptText: str|list = "Please choose an option:", askUntilValid: bool = True, validOptions: list[list[str]] = None, showNumbers: bool = True, returnIndex: bool = False, ignoreLetterCase: bool = True, minWidth: int = 0, minHeight: int = 0, warningMessage: str|None = None) -> int | str | None:
