@@ -18,7 +18,7 @@ def create_starter_inventory(difficulty):
     
     return inv
 
-def get_buyable_items():
+def get_buyable_items(game_state):
     """Returns list of all items available for purchase"""
     return list(catalog.keys())
 
@@ -96,8 +96,9 @@ def set_item_price(inventory, item_name, new_price):
 def get_customer_compatible_items(inventory, customer_preferences):
     """Returns items customer might want based on preferences"""
     compatible_items = []
+
     for item in inventory.listItems():
-        if item.getItemCategory() in customer_preferences and item.getCount() > 0:
+        if (customer_preferences is None or item.getItemCategory() in customer_preferences) and item.getCount() > 0:
             compatible_items.append({
                 'name': item.getName(),
                 'category': item.getItemCategory(),

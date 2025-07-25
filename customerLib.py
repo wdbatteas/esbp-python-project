@@ -16,7 +16,7 @@ class Customer:
 def spawn_customers(day_number: int, store_rating: float, difficulty: str = "medium") -> list[Customer]:
     num_customers = 5 + day_number
     customers = []
-    categories_pool = ['food', 'dairy', 'tech', 'clothing', 'toys', 'books']
+    categories_pool = ['fruit', 'vegetable', 'bakery', 'dairy', 'frozen', 'canned', 'snack', 'cleaning', 'clothing', 'electronics', 'gaming', 'appliance']
 
 
     # Difficulty settings

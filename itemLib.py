@@ -27,65 +27,76 @@ catalog = {
     'Donut': {'purchaseCost': 2, 'type': 'bakery'},
 
 
-    # Frozen/Refrigerated
-    'Milk': {'purchaseCost': 2, 'type': 'dairy'},
-    'Eggs': {'purchaseCost': 2, 'type': 'dairy'},
-    'Cheese': {'purchaseCost': 2, 'type': 'dairy'},
-    'Yogurt': {'purchaseCost': 2, 'type': 'dairy'},
-    'Ice Cream': {'purchaseCost': 2, 'type': 'frozen'},
-    'Frozen Pizza': {'purchaseCost': 2, 'type': 'frozen'},
-    'Frozen Vegetables': {'purchaseCost': 2, 'type': 'frozen'},
+    # # Frozen/Refrigerated
+    # 'Milk': {'purchaseCost': 2, 'type': 'dairy'},
+    # 'Eggs': {'purchaseCost': 2, 'type': 'dairy'},
+    # 'Cheese': {'purchaseCost': 2, 'type': 'dairy'},
+    # 'Yogurt': {'purchaseCost': 2, 'type': 'dairy'},
+    # 'Ice Cream': {'purchaseCost': 2, 'type': 'frozen'},
+    # 'Frozen Pizza': {'purchaseCost': 2, 'type': 'frozen'},
+    # 'Frozen Vegetables': {'purchaseCost': 2, 'type': 'frozen'},
 
 
-    # Canned Goods
-    'Canned Corn': {'purchaseCost': 2, 'type': 'canned'},
-    'Canned Beans': {'purchaseCost': 2, 'type': 'canned'},
-    'Canned Soup': {'purchaseCost': 2, 'type': 'canned'},
-    'Canned Tuna': {'purchaseCost': 2, 'type': 'canned'},
+    # # Canned Goods
+    # 'Canned Corn': {'purchaseCost': 2, 'type': 'canned'},
+    # 'Canned Beans': {'purchaseCost': 2, 'type': 'canned'},
+    # 'Canned Soup': {'purchaseCost': 2, 'type': 'canned'},
+    # 'Canned Tuna': {'purchaseCost': 2, 'type': 'canned'},
 
 
-    # Snacks
-    'Chocolate Bar': {'purchaseCost': 2, 'type': 'snack'},
-    'Potato Chips': {'purchaseCost': 2, 'type': 'snack'},
-    'Granola Bar': {'purchaseCost': 2, 'type': 'snack'},
-    'Popcorn': {'purchaseCost': 2, 'type': 'snack'},
-    'Cookies': {'purchaseCost': 2, 'type': 'snack'},
+    # # Snacks
+    # 'Chocolate Bar': {'purchaseCost': 2, 'type': 'snack'},
+    # 'Potato Chips': {'purchaseCost': 2, 'type': 'snack'},
+    # 'Granola Bar': {'purchaseCost': 2, 'type': 'snack'},
+    # 'Popcorn': {'purchaseCost': 2, 'type': 'snack'},
+    # 'Cookies': {'purchaseCost': 2, 'type': 'snack'},
 
 
-    # Cleaning Supplies
-    'Dish Soap': {'purchaseCost': 2, 'type': 'cleaning'},
-    'Laundry Detergent': {'purchaseCost': 2, 'type': 'cleaning'},
-    'Bleach': {'purchaseCost': 2, 'type': 'cleaning'},
-    'Glass Cleaner': {'purchaseCost': 2, 'type': 'cleaning'},
+    # # Cleaning Supplies
+    # 'Dish Soap': {'purchaseCost': 2, 'type': 'cleaning'},
+    # 'Laundry Detergent': {'purchaseCost': 2, 'type': 'cleaning'},
+    # 'Bleach': {'purchaseCost': 2, 'type': 'cleaning'},
+    # 'Glass Cleaner': {'purchaseCost': 2, 'type': 'cleaning'},
 
 
-    # Clothes
-    'T-Shirt': {'purchaseCost': 2, 'type': 'clothing'},
-    'Jeans': {'purchaseCost': 2, 'type': 'clothing'},
-    'Jacket': {'purchaseCost': 2, 'type': 'clothing'},
-    'Sneakers': {'purchaseCost': 2, 'type': 'clothing'},
-    'Shoes': {'purchaseCost': 2, 'type': 'clothing'},
+    # # Clothes
+    # 'T-Shirt': {'purchaseCost': 2, 'type': 'clothing'},
+    # 'Jeans': {'purchaseCost': 2, 'type': 'clothing'},
+    # 'Jacket': {'purchaseCost': 2, 'type': 'clothing'},
+    # 'Sneakers': {'purchaseCost': 2, 'type': 'clothing'},
+    # 'Shoes': {'purchaseCost': 2, 'type': 'clothing'},
 
 
-    # Electronics
-    'Headphones': {'purchaseCost': 2, 'type': 'electronics'},
-    'Phone Charger': {'purchaseCost': 2, 'type': 'electronics'},
-    'Bluetooth Speaker': {'purchaseCost': 2, 'type': 'electronics'},
-    'Laptop': {'purchaseCost': 2, 'type': 'electronics'},
+    # # Electronics
+    # 'Headphones': {'purchaseCost': 2, 'type': 'electronics'},
+    # 'Phone Charger': {'purchaseCost': 2, 'type': 'electronics'},
+    # 'Bluetooth Speaker': {'purchaseCost': 2, 'type': 'electronics'},
+    # 'Laptop': {'purchaseCost': 2, 'type': 'electronics'},
 
 
-    # Video Games
-    'Game Console': {'purchaseCost': 2, 'type': 'gaming'},
-    'Controller': {'purchaseCost': 2, 'type': 'gaming'},
-    'Video Game': {'purchaseCost': 2, 'type': 'gaming'},
+    # # Video Games
+    # 'Game Console': {'purchaseCost': 2, 'type': 'gaming'},
+    # 'Controller': {'purchaseCost': 2, 'type': 'gaming'},
+    # 'Video Game': {'purchaseCost': 2, 'type': 'gaming'},
 
 
-    # Appliances
-    'Microwave': {'purchaseCost': 2, 'type': 'appliance'},
-    'Toaster': {'purchaseCost': 2, 'type': 'appliance'},
-    'Blender': {'purchaseCost': 2, 'type': 'appliance'},
-    'Coffee Maker': {'purchaseCost': 2, 'type': 'appliance'}
+    # # Appliances
+    # 'Microwave': {'purchaseCost': 2, 'type': 'appliance'},
+    # 'Toaster': {'purchaseCost': 2, 'type': 'appliance'},
+    # 'Blender': {'purchaseCost': 2, 'type': 'appliance'},
+    # 'Coffee Maker': {'purchaseCost': 2, 'type': 'appliance'}
 }
+def getItemsFromCategory(cat: str) -> list[str]:
+    keys = list(catalog.keys())
+    result = []
+    for key in keys:
+        typ = catalog[key]['type']
+        if cat == typ:
+            result.append(key)
+    return result
+
+def getItemCost(itemName: str, itemCount: int=1):
+    return catalog[itemName]['purchaseCost'] * itemCount
 
 
 class Item:
