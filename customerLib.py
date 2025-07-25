@@ -13,23 +13,23 @@ class Customer:
         return f"<Customer ${self.budget:.2f}, prefs={self.preferences}, satisfaction={self.satisfaction:.2f}>"
 
 
-def spawn_customers(day_number: int, store_rating: float, difficulty: str = "medium", insane_mode: bool = False) -> list[Customer]:
+def spawn_customers(day_number: int, store_rating: float, difficulty: str = "medium") -> list[Customer]:
     num_customers = 5 + day_number
     customers = []
     categories_pool = ['food', 'dairy', 'tech', 'clothing', 'toys', 'books']
 
 
     # Difficulty settings
-    if difficulty == "easy":
+    if difficulty == "Easy":
         min_budget, max_budget = 40, 70
         min_prefs, max_prefs = 1, 2
-    elif difficulty == "medium":
+    elif difficulty == "Medium":
         min_budget, max_budget = 25, 50
         min_prefs, max_prefs = 2, 3
-    elif difficulty == "hard":
+    elif difficulty == "Hard":
         min_budget, max_budget = 15, 35
         min_prefs, max_prefs = 3, 5
-    elif difficulty == "insane" and insane_mode:
+    elif difficulty == "Insane":
         min_budget, max_budget = 5, 20
         min_prefs, max_prefs = 4, 6
     else:

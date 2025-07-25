@@ -282,18 +282,27 @@ def clearInputLine():
 
 """
 # endregion askForInput
-def askForInput(titleBar, question: str = "Please type your response:", minWidth: int = 30, minHeight: int = 0, inputPrompt: str = ">"):
-    question.append("")
-    question.append(f"{inputPrompt}")
-    question.append("")
+def askForInput(titleBar, question: str|list = "Please type your response:", minWidth: int = 30, minHeight: int = 0, inputPrompt: str = ">"):
+    # https://stackoverflow.com/questions/1549801/what-are-the-differences-between-type-and-isinstance
+    if isinstance(question, str):
+        question = [question]
     
-    drawWindowBuffered(titleBar, question, minWidth=minWidth, minHeight=minHeight)
+    question_copy = question.copy()
+    question_copy.append("")
+    question_copy.append(f"{inputPrompt} ")
     
-    xPos = visibleLength(inputPrompt) + 4
-    format.gotoXY(xPos,6)
-    userInput = input()
+    drawWindowBuffered(titleBar, question_copy, minWidth=minWidth, minHeight=minHeight)
     
-    return userInput
+    # calculate input position
+    input_line = len(question_copy) + 2  # account for window borders
+    xPos = len(inputPrompt) + 4
+    format.gotoXY(xPos, input_line)
+    
+    try:
+        userInput = input()
+        return userInput
+    except KeyboardInterrupt:
+        sys.exit(0)
 # testing askForInput
 # titleBar = "My Game"
 # user_response = askForInput(titleBar, "What's your name?")

@@ -2,6 +2,9 @@ import sys
 import terminalLib as terminal
 import customerLib
 import inventoryTranslationLib as invLib
+from itemLib import *
+import storageLib
+
 
 
 class GameState:
@@ -71,7 +74,13 @@ def get_store_name(game_state):
     else:
         game_state.store_name = "This store was not named"
 
-
+def update_store_rating(game_state, customer_satisfaction_scores):
+    """Update store rating based on customer satisfaction"""
+    if customer_satisfaction_scores:
+        avg_satisfaction = sum(customer_satisfaction_scores) / len(customer_satisfaction_scores)
+        # Gradually adjust rating towards satisfaction level
+        rating_change = (avg_satisfaction - 0.5) * 0.1  # Scale to reasonable change
+        game_state.store_rating = max(0.0, min(5.0, game_state.store_rating + rating_change))
         
 def starter_inventory(game_state):
     return invLib.create_starter_inventory(game_state.store_difficulty)
@@ -162,22 +171,119 @@ def do_tick_menu(game_state):
 def handle_buy_inventory(game_state):
     valid_options = ["Check Inventory", "Buy an Item", "Back"]
     response = terminal.askMenu(game_state.game_name, valid_options)
-    if response == "Buy an Item":
-        pass
-    elif response == "Check Inventory":
-        pass # print all items in window
-    elif response == "Back":
-        pass
-    pass
+    
+    if response == "Check Inventory":
+        summary = invLib.get_inventory_summary(game_state.store_inv)
+        inventory_display = [
+            f"Stock: {summary['stock']}/{summary['capacity']}",
+            f"Free Space: {summary['free_space']}",
+            f"Items in stock: {summary['items_count']}",
+            ""
+        ]
+        for name, count, price in summary['items']:
+            inventory_display.append(f"{name} x{count} (${price:.2f} each)")
+        
+        terminal.drawWindowBuffered(game_state.game_name, inventory_display)
+        terminal.waitUntilEnter()
+        
+    elif response == "Buy an Item":
+        buyable_items = invLib.get_buyable_items()
+        buyable_items.append("Back")
+        
+        item_choice = terminal.askMenu(game_state.game_name, buyable_items, "What item would you like to buy?")
+        if item_choice != "Back":
+            quantity_prompt = [f"How many {item_choice} would you like to buy?", f"Cost per item: ${catalog[item_choice]['purchaseCost']:.2f}"]
+            try:
+                quantity_str = terminal.askForInput(game_state.game_name, quantity_prompt)
+                quantity = int(quantity_str)
+                
+                success, cost, message = invLib.buy_item_for_inventory(game_state.store_inv, item_choice, quantity, game_state)
+                game_state.event_messages.append(message)
+                if success:
+                    game_state.event_messages.append(f"Spent ${cost:.2f}")
+                    
+            except ValueError:
+                game_state.event_messages.append("Invalid quantity entered")
 
 def handle_set_prices(game_state):
-    pass
+    summary = invLib.get_inventory_summary(game_state.store_inv)
+    if not summary['items']:
+        game_state.event_messages.append("No items in inventory to price")
+        return
+    
+    item_names = [item[0] for item in summary['items']]
+    item_names.append("Back")
+    
+    item_choice = terminal.askMenu(game_state.game_name, item_names, "Which item would you like to price?")
+    if item_choice != "Back":
+        current_item = None
+        for item in game_state.store_inv.listItems():
+            if item.getName() == item_choice:
+                current_item = item
+                break
+        
+        if current_item:
+            price_prompt = [
+                f"Current price for {item_choice}: ${current_item.getSellValue():.2f}",
+                f"Purchase cost: ${current_item.getPurchaseCost():.2f}",
+                "Enter new selling price:"
+            ]
+            try:
+                new_price_str = terminal.askForInput(game_state.game_name, price_prompt)
+                new_price = float(new_price_str)
+                if new_price > 0:
+                    invLib.set_item_price(game_state.store_inv, item_choice, new_price)
+                    game_state.event_messages.append(f"Set {item_choice} price to ${new_price:.2f}")
+                else:
+                    game_state.event_messages.append("Price must be positive")
+            except ValueError:
+                game_state.event_messages.append("Invalid price entered")
 
 def handle_upgrade_store(game_state):
-    pass
+    upgrade_options = ["Buy Storage Unit", "Upgrade Existing Storage", "Back"]
+    response = terminal.askMenu(game_state.game_name, upgrade_options)
+    
+    if response == "Buy Storage Unit":
+        available_units = ["shelf", "freezer", "Back"]
+        unit_choice = terminal.askMenu(game_state.game_name, available_units, "What storage would you like to buy?")
+        
+        if unit_choice != "Back":
+            cost = storageLib.units[unit_choice]['purchaseCost']
+            if game_state.store_balance >= cost:
+                new_unit = storageLib.StorageUnit(unit_choice)
+                success = game_state.store_inv.addStorageUnit(new_unit)
+                if success:
+                    game_state.store_balance -= cost
+                    game_state.event_messages.append(f"Bought {unit_choice} for ${cost}")
+                else:
+                    game_state.event_messages.append("Cannot add this storage unit")
+            else:
+                game_state.event_messages.append("Not enough money")
 
 def handle_print_details(game_state):
-    pass
+    summary = invLib.get_inventory_summary(game_state.store_inv)
+    details = [
+        f"Store: {game_state.store_name}",
+        f"Balance: ${game_state.store_balance:.2f}",
+        f"Rating: {game_state.store_rating} stars",
+        f"Day: {game_state.store_day}",
+        f"Inventory: {summary['stock']}/{summary['capacity']}",
+        "",
+        "Items in stock:"
+    ]
+    
+    for name, count, price in summary['items']:
+        profit_margin = ((price - catalog[name]['purchaseCost']) / catalog[name]['purchaseCost']) * 100
+        details.append(f"  {name}: {count}x @ ${price:.2f} ({profit_margin:.1f}% markup)")
+    
+    if game_state.store_inv.getStorageUnits():
+        details.append("")
+        details.append("Storage Units:")
+        for unit in game_state.store_inv.getStorageUnits():
+            details.append(f"  {unit}")
+    
+    terminal.drawWindowBuffered(game_state.game_name, details)
+    terminal.waitUntilEnter()
 
 def handle_talk_customer(game_state):
     pass
@@ -191,21 +297,111 @@ def handle_exit(game_state):
         return False
     return True
 
+# def do_customer_shopping(game_state):
+#     # handle customer shopping
+#     tick_index = game_state.store_tick_count - 1
+    
+#     game_state.current_tick_customer = game_state.customer_distribution[tick_index]
+#     if type(game_state.current_tick_customer) == customerLib.Customer:
+#         # customerLib.customer_shops(current_tick_customer, store_inv)
+#         game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
+
+#     elif type(game_state.current_tick_customer) == list:
+#         for cust in game_state.current_tick_customer:
+#             # customerLib.customer_shops(cust, store_inv)
+#             game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
+#     elif type(game_state.current_tick_customer) == None:
+#             pass
+
+# def do_customer_shopping(game_state):
+#     tick_index = game_state.store_tick_count - 1
+    
+#     game_state.current_tick_customer = game_state.customer_distribution[tick_index]
+#     if type(game_state.current_tick_customer) == customerLib.Customer:
+#         customer = game_state.current_tick_customer
+#         compatible_items = invLib.get_customer_compatible_items(game_state.store_inv, customer.preferences)
+        
+#         total_spent = 0
+#         items_bought = []
+        
+#         for item_data in compatible_items:
+#             if customer.budget >= item_data['price'] and item_data['stock'] > 0:
+#                 success, revenue, message = invLib.sell_item_from_inventory(
+#                     game_state.store_inv, 
+#                     item_data['name'], 
+#                     1, 
+#                     customer.budget
+#                 )
+#                 if success:
+#                     customer.budget -= revenue
+#                     total_spent += revenue
+#                     game_state.store_balance += revenue
+#                     items_bought.append(item_data['name'])
+        
+#         if items_bought:
+#             game_state.event_messages.append(f"Customer bought: {', '.join(items_bought)} (${total_spent:.2f})")
+#         else:
+#             game_state.event_messages.append("Customer left without buying anything")
+
+#     elif type(game_state.current_tick_customer) == list:
+#         for customer in game_state.current_tick_customer:
+#             # Handle multiple customers (simplified - you may want to expand this)
+#             game_state.event_messages.append(f"Multiple customers shopping")
+
+
+
 def do_customer_shopping(game_state):
-    # handle customer shopping
     tick_index = game_state.store_tick_count - 1
     
+    if tick_index >= len(game_state.customer_distribution):
+        return
+        
     game_state.current_tick_customer = game_state.customer_distribution[tick_index]
-    if type(game_state.current_tick_customer) == customerLib.Customer:
-        # customerLib.customer_shops(current_tick_customer, store_inv)
-        game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
-
-    elif type(game_state.current_tick_customer) == list:
-        for cust in game_state.current_tick_customer:
-            # customerLib.customer_shops(cust, store_inv)
-            game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
-    elif type(game_state.current_tick_customer) == None:
-            pass
+    
+    if isinstance(game_state.current_tick_customer, customerLib.Customer):
+        customer = game_state.current_tick_customer
+        compatible_items = invLib.get_customer_compatible_items(game_state.store_inv, customer.preferences)
+        
+        total_spent = 0
+        items_bought = []
+        
+        # https://stackoverflow.com/questions/16310015/what-does-this-mean-key-lambda-x-x1
+        compatible_items.sort(key=lambda x: x['price'])
+        
+        for item_data in compatible_items:
+            if customer.budget >= item_data['price'] and item_data['stock'] > 0:
+                success, revenue, message = invLib.sell_item_from_inventory(
+                    game_state.store_inv, 
+                    item_data['name'], 
+                    1, 
+                    customer.budget
+                )
+                if success:
+                    customer.budget -= revenue
+                    total_spent += revenue
+                    game_state.store_balance += revenue
+                    items_bought.append(item_data['name'])
+        
+        if items_bought:
+            game_state.event_messages.append(f"Customer bought: {', '.join(items_bought)} (${total_spent:.2f})")
+        else:
+            game_state.event_messages.append("Customer left without buying anything")
+            
+    elif isinstance(game_state.current_tick_customer, list):
+        for customer in game_state.current_tick_customer:
+            # Process each customer in the group
+            # (recursively call with single customer)
+            temp_state = type('temp', (), {})()
+            temp_state.store_inv = game_state.store_inv
+            temp_state.store_balance = game_state.store_balance
+            temp_state.event_messages = []
+            temp_state.current_tick_customer = customer
+            temp_state.store_tick_count = game_state.store_tick_count
+            temp_state.customer_distribution = [customer]
+            
+            do_customer_shopping(temp_state)
+            game_state.store_balance = temp_state.store_balance
+            game_state.event_messages.extend(temp_state.event_messages)
 
 # game phases
 def start_day(game_state):
@@ -224,15 +420,13 @@ def start_day(game_state):
 
 def handle_shopping_phase(game_state):
     if game_state.fast_forward == True:
-        while game_state.store_tick_count < game_state.store_ticks_per_day:
+        while game_state.store_tick_count <= game_state.store_ticks_per_day:
             do_customer_shopping(game_state)
             game_state.store_tick_count += 1
+        game_state.fast_forward = False
     else:
         do_customer_shopping(game_state)
-        
-
-    do_tick_menu(game_state)
-    game_state.store_tick_count += 1
+        game_state.store_tick_count += 1
 
 
 def end_day(game_state):
