@@ -1,7 +1,7 @@
 import sys
 import terminalLib as terminal
 import customerLib
-import inventoryLib
+import inventoryTranslationLib as invLib
 
 
 class GameState:
@@ -43,19 +43,38 @@ def starting_menu(game_state):
             sys.exit()
 
 def ask_difficulty(game_state):
-    valid_options = ["Easy", "Medium", "Hard", "Insane"]
-    return terminal.askMenu(game_state.game_name, valid_options, promptText="Select a difficulty level for the game.")
+    difficulty_menu = ["Easy", "Medium", "Hard", "Insane"]
+    difficult_menu_warning = None
+    while True:
+        response = terminal.askMenu(game_state.game_name, difficulty_menu, warningMessage=difficult_menu_warning)
+        if response == difficulty_menu[0]:
+            break
+        elif response == difficulty_menu[1]:
+            difficult_menu_warning = f"{terminal.color.BRIGHT_RED}Medium is Currently Disabled{terminal.color.RESET}"
+        elif response == difficulty_menu[2]:
+            difficult_menu_warning = f"{terminal.color.BRIGHT_RED}Hard is Currently Disabled{terminal.color.RESET}"
+        elif response == difficulty_menu[3]:
+            difficult_menu_warning = f"{terminal.color.BRIGHT_RED}Insane is Currently Disabled{terminal.color.RESET}"
+
+    return "Easy"
+    # valid_options = ["Easy", "Medium", "Hard", "Insane"]
+    # return terminal.askMenu(game_state.game_name, valid_options, promptText="Select a difficulty level for the game.")
 
 def get_store_name(game_state):
     storeNamePrompt = [
         "You're beginning a business."
         "What do you want the name to be?"
     ]
-    game_state.store_name = terminal.askForInput(game_state.game_name, storeNamePrompt)
+    response = terminal.askForInput(game_state.game_name, storeNamePrompt)
+    if response:
+        game_state.store_name = response
+    else:
+        game_state.store_name = "This store was not named"
 
-def starter_inventory():
-    inv = inventoryLib.Inventory()
-    return inv
+
+        
+def starter_inventory(game_state):
+    return invLib.create_starter_inventory(game_state.store_difficulty)
 
 def print_opening_summary(game_state):
     to_draw = [
@@ -102,7 +121,7 @@ def do_tick_menu(game_state):
             "Upgrade Store", 
             "View Details About Store", 
             "Continue to Next Game Event", 
-            "End Day", 
+            "End Day (fast foward)", 
             "Exit Game"
             ]
         
@@ -129,7 +148,7 @@ def do_tick_menu(game_state):
         elif response == "Continue to Next Game Event":
             in_menu = False
 
-        elif response == "End Day (fast fowards)":
+        elif response == "End Day (fast foward)":
             game_state.fast_forward = True
             in_menu = False
 
@@ -230,7 +249,7 @@ def main():
     starting_menu(game_state)
     ask_difficulty(game_state)
     get_store_name(game_state)
-    game_state.store_inv = starter_inventory()
+    game_state.store_inv = starter_inventory(game_state)
 
     # game loop
     while game_state.game_is_running:
