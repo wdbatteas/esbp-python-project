@@ -4,6 +4,7 @@ import customerLib
 import inventoryTranslationLib as invLib
 from itemLib import *
 import storageLib
+import animationLib as anim
 
 logging = True
 def log(data: str):
@@ -572,6 +573,7 @@ def end_day(game_state):
     game_state.event_messages = []
 
 def main():
+    anim.playIntro()
     log("main(): running check_platform()")
     check_platform()
     log("main(): running terminal.format.hideCursor()")
@@ -602,7 +604,22 @@ def main():
             handle_shopping_phase(game_state)
         elif game_state.store_tick_count == (game_state.store_ticks_per_day + 1):
             log(f"main(): tick count {game_state.store_tick_count} is at end of day, ending day...")
+            import matrixLib
+            matrixLib.continueAnim(True)
+            # https://www.stratascratch.com/blog/python-threading-like-a-pro/#:~:text=Thread()%20function%20creates%20a,thread%2C%20which%20begins%20its%20execution.
+            import threading
+            import time
+            animation = threading.Thread(target=matrixLib.animate)
+            animation.daemon = True
+            animation.start()
+            time.sleep(4.5)
+            matrixLib.continueAnim(False)
+            time.sleep(0.25)
+            
+            terminal.clearV2()
+
             end_day(game_state)
+            
         else:
             log(f"main(): Unknown tick count {game_state.store_tick_count}, raising exception.")
             raise Exception(f"Unknown error: {game_state.store_tick_count} is not in range 0-{game_state.store_ticks_per_day}")

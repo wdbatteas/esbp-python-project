@@ -71,8 +71,10 @@ class StorageUnit:
 
         return f"{name} x{count} [Holds: {cat}] | [Capacity: {cap}] | [Power Rating: {power}]"
    
-freeze = StorageUnit("shelf")
-print(freeze)
+
+if __name__ == "__main__":
+    freeze = StorageUnit("shelf")
+    print(freeze)
 
 
    

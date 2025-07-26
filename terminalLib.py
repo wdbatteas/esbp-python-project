@@ -15,7 +15,7 @@ def clear():
     try:
         os.system('cls')
     except:
-        print("error @ cleanLib.py @ clear()")
+        print("error @ terminalLib.py @ clear()")
         sys.exit
 
 def wait(seconds: int):
@@ -167,6 +167,15 @@ class format():
     def gotoXY(x,y):
         printnl(f"\033[{y};{x}H")
 
+def getTerminalSize():
+    return os.get_terminal_size()
+
+def getTerminalHeight():
+    return getTerminalSize().lines
+
+def getTerminalWidth():
+    return getTerminalSize().columns
+
 def drawWindowBuffered(titleBar: str, windowLines: list, minWidth:int = 0, minHeight:int = 0, clearPreviousType: str|None|bool = "both", returnType: str = "print") -> str|list|None:
     """
     draws the window buffer style to avoid terminal flickering
@@ -177,6 +186,9 @@ def drawWindowBuffered(titleBar: str, windowLines: list, minWidth:int = 0, minHe
     clearPrevious: default: both: clears other characters of the screen. horizontal: clears rows but not text underneath. vertical: clears text underneath box. None: doesnt clear
     returnType: default: print: prints to terminal. list: returns list, str: returns string
     """
+    
+    minWidth = getTerminalWidth()
+    minHeight = getTerminalHeight()-2
     # region example
     # example output:
     # titleBar = "Hello World"
@@ -218,7 +230,7 @@ def drawWindowBuffered(titleBar: str, windowLines: list, minWidth:int = 0, minHe
         outputLines.append(f"{color.BRIGHT_BLUE}{border.side}{color.RESET} {line}{' ' * spacesToAdd} {color.BRIGHT_BLUE}{border.side}{color.RESET}")
 
     if (len(outputLines)+1) < minHeight:
-        remainingLines = minHeight - visibleLength(outputLines) - 1
+        remainingLines = minHeight - len(outputLines) - 1
         for index in range(remainingLines):
             spacesToAdd = maxLength - 2
             outputLines.append(f"{color.BRIGHT_BLUE}{border.side}{color.RESET} {' ' * spacesToAdd} {color.BRIGHT_BLUE}{border.side}{color.RESET}")
@@ -294,7 +306,7 @@ def askForInput(titleBar, question: str|list = "Please type your response:", min
     drawWindowBuffered(titleBar, question_copy, minWidth=minWidth, minHeight=minHeight)
     
     # calculate input position
-    input_line = len(question_copy) + 2  # account for window borders
+    input_line = len(question_copy) + 3 # account for window borders
     xPos = len(inputPrompt) + 4
     format.gotoXY(xPos, input_line)
     
@@ -309,14 +321,7 @@ def askForInput(titleBar, question: str|list = "Please type your response:", min
 
 # drawWindowBuffered(titleBar, [f"{user_response}"])
 
-def getTerminalSize():
-    return os.get_terminal_size()
 
-def getTerminalHeight():
-    return getTerminalSize().lines
-
-def getTerminalWidth():
-    return getTerminalSize().columns
 
 # askMenuV2
 def askMenu( titleBar: str, choices: list, promptText: str|list = "Please choose an option:", askUntilValid: bool = True, validOptions: list[list[str]] = None, showNumbers: bool = True, returnIndex: bool = False, ignoreLetterCase: bool = True, minWidth: int = 0, minHeight: int = 0, warningMessage: str|None = None) -> int | str | None:

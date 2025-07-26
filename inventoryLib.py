@@ -270,7 +270,8 @@ def _testing():
     inv.addStorageUnit(StorageUnit('freezer'))
     print(inv)
 
-_testing()
+if __name__ == "__main__":
+    _testing()
 
 
 # storage = ItemStorage(10)
