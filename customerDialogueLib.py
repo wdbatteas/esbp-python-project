@@ -1,4 +1,7 @@
-import ollama  
+
+import ollama
+
+
 def generate_customer_text():
     """
     Generate a fictional customer description using an Ollama language model.

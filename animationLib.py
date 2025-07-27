@@ -3,6 +3,9 @@ import os
 import random
 import time
 
+import ollamaInstaller as oI
+
+
 def loadingIntroRanTime():
     return random.uniform(0.0, 0.1)
 
@@ -56,6 +59,44 @@ def loadingIntro():
     animateLetterByLetter(f"LOADING OLLAMA MODULES", 1000)
     printnl(color.WHITE)
     animateLetterByLetter("..........", 45)
+    oI.install()
+    importAttempts = 1
+    try:
+        import ollama
+    except:
+        printnl(color.BRIGHT_ORANGE)
+        printnl("Attempt 1")
+    while True:
+        try:
+            import ollama
+        except:
+            if importAttempts < 5:
+                printnl(f" {importAttempts + 1}")
+                importAttempts += 1
+                time.sleep(1)
+            else:
+                printnl(color.BRIGHT_WHITE)
+                printnl("RESTARTING PROGRAM")
+                import sys
+                import subprocess
+                import os
+                
+                # Create a temporary batch file to handle the restart
+                script_path = os.path.abspath(sys.argv[0])
+                batch_content = f'@echo off\ncd /d "{os.path.dirname(script_path)}"\npython "{os.path.basename(script_path)}"\nexit'
+                
+                with open('restart_temp.bat', 'w') as f:
+                    f.write(batch_content)
+                
+                # Run the batch file in a new window
+                subprocess.Popen(['cmd', '/c', 'start', 'restart_temp.bat'], shell=True)
+                
+                time.sleep(1)
+                while True:
+                    time.sleep(1) # loop of death
+        else:
+            break
+        
     printnl(color.BRIGHT_GREEN)
     animateLetterByLetter("OK")
     print()
@@ -386,9 +427,10 @@ def playIntro():
 
 if __name__ == "__main__":
     # playIntro()
-    # testFireworks()
     pass
 
+
+# playIntro()
 
 
 

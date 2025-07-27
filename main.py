@@ -1,10 +1,15 @@
+import animationLib as anim
+
+anim.playIntro()
+
+
 import sys
 import terminalLib as terminal
 import customerLib
 import inventoryTranslationLib as invLib
 from itemLib import *
 import storageLib
-import animationLib as anim
+
 
 logging = True
 def log(data: str):
@@ -161,6 +166,7 @@ def do_tick_menu(game_state):
             "View Details About Store", 
             "Continue to Next Game Event", 
             "End Day (fast foward)", 
+            "Talk To A Customer",
             "Exit Game"
             ]
         
@@ -381,7 +387,146 @@ def handle_print_details(game_state):
 
 def handle_talk_customer(game_state):
     log("Handling talk to customer action...")
-    pass
+    
+    # Check if there's a customer at the current tick
+    tick_index = game_state.store_tick_count - 1
+    if tick_index < 0 or tick_index >= len(game_state.customer_distribution):
+        log("No customer to talk to at current tick")
+        game_state.event_messages.append("No customers are currently in the store")
+        return
+    
+    current_customer = game_state.customer_distribution[tick_index]
+    
+    if current_customer is None:
+        log("No customer at current tick")
+        game_state.event_messages.append("No customers are currently in the store")
+        return
+    
+    # Handle multiple customers
+    if isinstance(current_customer, list):
+        log(f"Multiple customers present: {current_customer}")
+        customer_options = []
+        for i, customer in enumerate(current_customer):
+            customer_options.append(f"Customer {i+1} (Budget: ${customer.budget:.2f}, Preferences: {', '.join(customer.preferences)})")
+        customer_options.append("Back")
+        
+        choice = terminal.askMenu(game_state.game_name, customer_options, "Which customer would you like to talk to?")
+        if choice == "Back":
+            return
+        
+        # Get selected customer index
+        selected_index = customer_options.index(choice)
+        selected_customer = current_customer[selected_index]
+    
+    # Handle single customer
+    elif isinstance(current_customer, customerLib.Customer):
+        log(f"Single customer present: {current_customer}")
+        selected_customer = current_customer
+    
+    else:
+        log("Invalid customer type")
+        game_state.event_messages.append("Error: Unable to communicate with customer")
+        return
+    
+    # Generate dialogue using the customer dialogue library
+    try:
+        import customerDialogueLib
+        log("Generating customer dialogue...")
+        
+        # Create a context-aware prompt based on customer preferences and budget
+        customer_context = f"You are a customer in a store with a budget of ${selected_customer.budget:.2f}. You are interested in {', '.join(selected_customer.preferences)} items. "
+        
+        # Show customer dialogue
+        dialogue_options = ["Ask about preferences", "Ask about budget", "Recommend items", "Generate AI dialogue", "Back"]
+        
+        while True:
+            choice = terminal.askMenu(game_state.game_name, dialogue_options, f"Talking to customer (Budget: ${selected_customer.budget:.2f})")
+            
+            if choice == "Ask about preferences":
+                preferences_text = f"Customer says: 'I'm looking for {', '.join(selected_customer.preferences)} items today.'"
+                terminal.drawWindowBuffered(game_state.game_name, [preferences_text, "", "Press Enter to continue..."])
+                terminal.waitUntilEnter()
+                
+            elif choice == "Ask about budget":
+                budget_text = f"Customer says: 'I have about ${selected_customer.budget:.2f} to spend today.'"
+                terminal.drawWindowBuffered(game_state.game_name, [budget_text, "", "Press Enter to continue..."])
+                terminal.waitUntilEnter()
+                
+            elif choice == "Recommend items":
+                # Get items that match customer preferences
+                compatible_items = invLib.get_customer_compatible_items(game_state.store_inv, selected_customer.preferences)
+                affordable_items = [item for item in compatible_items if item['price'] <= selected_customer.budget]
+                
+                if affordable_items:
+                    recommendation_text = [
+                        "You recommend:",
+                        ""
+                    ]
+                    for item in affordable_items[:3]:  # Show top 3 recommendations
+                        recommendation_text.append(f"- {item['name']}: ${item['price']:.2f} ({item['category']})")
+                    
+                    if len(affordable_items) > 0:
+                        # Slightly increase customer satisfaction for good service
+                        selected_customer.satisfaction = min(1.0, selected_customer.satisfaction + 0.1)
+                        recommendation_text.append("")
+                        recommendation_text.append("Customer seems pleased with your recommendations!")
+                else:
+                    recommendation_text = [
+                        "Unfortunately, we don't have any items that match",
+                        "your preferences within your budget right now.",
+                        "",
+                        "Customer looks disappointed..."
+                    ]
+                    # Slightly decrease satisfaction
+                    selected_customer.satisfaction = max(0.0, selected_customer.satisfaction - 0.05)
+                
+                recommendation_text.append("")
+                recommendation_text.append("Press Enter to continue...")
+                terminal.drawWindowBuffered(game_state.game_name, recommendation_text)
+                terminal.waitUntilEnter()
+                
+            elif choice == "Generate AI dialogue":
+                try:
+                    ai_dialogue = customerDialogueLib.generate_customer_text()
+                    dialogue_display = [
+                        "AI-Generated Customer Response:",
+                        "",
+                        ai_dialogue,
+                        "",
+                        "Press Enter to continue..."
+                    ]
+                    terminal.drawWindowBuffered(game_state.game_name, dialogue_display)
+                    terminal.waitUntilEnter()
+                except Exception as e:
+                    log(f"Error generating AI dialogue: {e}")
+                    error_display = [
+                        "Sorry, AI dialogue is not available right now.",
+                        "Make sure Ollama is installed and running.",
+                        "",
+                        "Press Enter to continue..."
+                    ]
+                    terminal.drawWindowBuffered(game_state.game_name, error_display)
+                    terminal.waitUntilEnter()
+                
+            elif choice == "Back":
+                break
+        
+        game_state.event_messages.append(f"You talked to a customer (Budget: ${selected_customer.budget:.2f})")
+        log("Customer conversation completed")
+        
+
+    except ImportError:
+        log("customerDialogueLib not available")
+        # Fallback simple dialogue
+        simple_dialogue = [
+            f"Customer says: 'Hello! I'm looking for {', '.join(selected_customer.preferences)} items.'",
+            f"'I have ${selected_customer.budget:.2f} to spend today.'",
+            "",
+            "Press Enter to continue..."
+        ]
+        terminal.drawWindowBuffered(game_state.game_name, simple_dialogue)
+        terminal.waitUntilEnter()
+        game_state.event_messages.append("You talked to a customer")
 
 def handle_exit(game_state):
     log("Handling exit action...")
@@ -394,58 +539,6 @@ def handle_exit(game_state):
         game_state.game_is_running = False
         return False
     return True
-
-# def do_customer_shopping(game_state):
-#     # handle customer shopping
-#     tick_index = game_state.store_tick_count - 1
-    
-#     game_state.current_tick_customer = game_state.customer_distribution[tick_index]
-#     if type(game_state.current_tick_customer) == customerLib.Customer:
-#         # customerLib.customer_shops(current_tick_customer, store_inv)
-#         game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
-
-#     elif type(game_state.current_tick_customer) == list:
-#         for cust in game_state.current_tick_customer:
-#             # customerLib.customer_shops(cust, store_inv)
-#             game_state.event_messages.append(f"{game_state.current_tick_customer} is shopping")
-#     elif type(game_state.current_tick_customer) == None:
-#             pass
-
-# def do_customer_shopping(game_state):
-#     tick_index = game_state.store_tick_count - 1
-    
-#     game_state.current_tick_customer = game_state.customer_distribution[tick_index]
-#     if type(game_state.current_tick_customer) == customerLib.Customer:
-#         customer = game_state.current_tick_customer
-#         compatible_items = invLib.get_customer_compatible_items(game_state.store_inv, customer.preferences)
-        
-#         total_spent = 0
-#         items_bought = []
-        
-#         for item_data in compatible_items:
-#             if customer.budget >= item_data['price'] and item_data['stock'] > 0:
-#                 success, revenue, message = invLib.sell_item_from_inventory(
-#                     game_state.store_inv, 
-#                     item_data['name'], 
-#                     1, 
-#                     customer.budget
-#                 )
-#                 if success:
-#                     customer.budget -= revenue
-#                     total_spent += revenue
-#                     game_state.store_balance += revenue
-#                     items_bought.append(item_data['name'])
-        
-#         if items_bought:
-#             game_state.event_messages.append(f"Customer bought: {', '.join(items_bought)} (${total_spent:.2f})")
-#         else:
-#             game_state.event_messages.append("Customer left without buying anything")
-
-#     elif type(game_state.current_tick_customer) == list:
-#         for customer in game_state.current_tick_customer:
-#             # Handle multiple customers (simplified - you may want to expand this)
-#             game_state.event_messages.append(f"Multiple customers shopping")
-
 
 
 def do_customer_shopping(game_state):
@@ -573,7 +666,6 @@ def end_day(game_state):
     game_state.event_messages = []
 
 def main():
-    anim.playIntro()
     log("main(): running check_platform()")
     check_platform()
     log("main(): running terminal.format.hideCursor()")
