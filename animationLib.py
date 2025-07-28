@@ -125,7 +125,7 @@ def loadingIntro():
     printnl(format.HIDE_CURSOR)
     size = getTerminalSize()
     cols, rows = size.columns, size.lines
-    if cols < 50 or rows < 50:
+    if cols < 111 or rows < 50:
         printnl(color.BRIGHT_RED)
         printnl(format.BOLD)
         animateLetterByLetter("WARNING: ")
@@ -136,7 +136,7 @@ def loadingIntro():
             cols, rows = getTerminalSize()
             format.gotoXY(54,9)
             printnl(f"{cols:>4}x{rows:>4}")
-            if cols > 50 and rows > 50: 
+            if cols > 111 and rows > 50: 
                 break
     printnl(format.SHOW_CURSOR)
     format.gotoXY(0,8)

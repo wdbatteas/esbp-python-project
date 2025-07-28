@@ -5,17 +5,14 @@ anim.playIntro()
 
 import sys
 import terminalLib as terminal
+from terminalLib import log
 import customerLib
 import inventoryTranslationLib as invLib
 from itemLib import *
 import storageLib
 
 
-logging = True
-def log(data: str):
-    if logging:
-        with open("log.txt", "a") as f:
-            f.write(data + "\n")
+
 
 class GameState:
     def __init__(self):
@@ -487,14 +484,15 @@ def handle_talk_customer(game_state):
                 
             elif choice == "Generate AI dialogue":
                 try:
-                    ai_dialogue = customerDialogueLib.generate_customer_text()
+                    ai_dialogue = customerDialogueLib.generate_customer_text(game_state, selected_customer)
                     dialogue_display = [
                         "AI-Generated Customer Response:",
-                        "",
-                        ai_dialogue,
+                        ""]
+                    dialogue_display.extend(ai_dialogue)
+                    dialogue_display.extend([
                         "",
                         "Press Enter to continue..."
-                    ]
+                    ])
                     terminal.drawWindowBuffered(game_state.game_name, dialogue_display)
                     terminal.waitUntilEnter()
                 except Exception as e:

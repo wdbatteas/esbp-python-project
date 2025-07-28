@@ -4,6 +4,12 @@ import os
 import time
 import sys
 
+logging = True
+def log(data: str):
+    if logging:
+        with open("log.txt", "a") as f:
+            f.write(data + "\n")
+
 # google ai overview
 def visibleLength(text):
     import re

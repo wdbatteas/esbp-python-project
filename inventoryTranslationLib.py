@@ -9,6 +9,7 @@ def create_starter_inventory(difficulty):
     # Add basic storage unit
     shelf = StorageUnit("shelf")
     inv.addAvailableStorage('shelf')
+    inv.addAvailableStorage('freezer')
     inv.addStorageUnit(shelf)
     
     # Add some starter items to available list
