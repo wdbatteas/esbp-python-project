@@ -426,7 +426,6 @@ def playIntro():
     neon_sign(banner_list, 1)
 
 if __name__ == "__main__":
-    # playIntro()
     pass
 
 

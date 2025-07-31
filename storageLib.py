@@ -45,7 +45,7 @@ class StorageUnit:
     def canHoldCategory(self, category=str) -> bool:
         return self.getItemCategories().__contains__(category)
     def getPowerRating(self) -> int:
-        return self.powerRating
+        return self.powerRating * self.getCount()
     def getCount(self) -> int:
         return self.count
     def getCapacity(self) -> int:

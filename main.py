@@ -161,7 +161,7 @@ def do_tick_menu(game_state):
             "Set Prices", 
             "Upgrade Store", 
             "View Details About Store", 
-            "Continue to Next Game Event", 
+            "Continue to Next Hour", 
             "End Day (fast foward)", 
             "Talk To A Customer",
             "Exit Game"
@@ -190,7 +190,7 @@ def do_tick_menu(game_state):
         elif response == "View Details About Store":
             handle_print_details(game_state)
 
-        elif response == "Continue to Next Game Event":
+        elif response == "Continue to Next Hour":
             game_state.fast_forward = False
             in_menu = False
 

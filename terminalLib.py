@@ -195,7 +195,6 @@ def drawWindowBuffered(titleBar: str, windowLines: list, minWidth:int = 0, minHe
     
     minWidth = getTerminalWidth()
     minHeight = getTerminalHeight()-2
-    # region example
     # example output:
     # titleBar = "Hello World"
     # windowLines = ["hello", "world", "123"]
@@ -211,7 +210,7 @@ def drawWindowBuffered(titleBar: str, windowLines: list, minWidth:int = 0, minHe
     # buttonOffset = 13 or titleBar + 2
     # windowLine = 23
     # topBar = 25 or windowLine + 2
-    # endregion example
+    
     
     buttonLength = 12
     buttonWidth = 3
@@ -288,18 +287,18 @@ def clearInputLine():
     printnl(" " * os.get_terminal_size().columns)  
     printnl("\r")  
 
-# region askForInput
+
 """
 ╭─────────────┬───┬───┬───╮
 │ Hello World │ _ │ □ │ X │
 ├─────────────┴───┴───┴───┤
-│ hellosdjafhsjdhfkhakjsd │
+│ line1234567890123456789 │
+│ hello                   │
 │ world                   │
-│ 123                     │
 ╰─────────────────────────╯
 
 """
-# endregion askForInput
+
 def askForInput(titleBar, question: str|list = "Please type your response:", minWidth: int = 30, minHeight: int = 0, inputPrompt: str = ">"):
     # https://stackoverflow.com/questions/1549801/what-are-the-differences-between-type-and-isinstance
     if isinstance(question, str):
@@ -467,6 +466,33 @@ def askMenu( titleBar: str, choices: list, promptText: str|list = "Please choose
 # windowLines = ["1","2","3"]
 # drawWindowBuffered(titleBar,windowLines)
 
+
+if __name__ == "__main__":
+    # Test drawWindowBuffered
+    print("Testing drawWindowBuffered...")
+    drawWindowBuffered("Test Window", ["This is a test window.", "Second line.", "Third line."])
+    wait(2)
+
+    print("Testing drawWindowBuffered...")
+    drawWindowBuffered("Test Window", ["This is a test window.", "Second line.", "Third line."])
+    wait(2)
+
+
+    # Test askMenu
+    print("Testing askMenu...")
+    menu_result = askMenu("Test Menu", ["Option 1", "Option 2", "Option 3"], promptText="Choose an option:")
+    print(f"askMenu result: {menu_result}")
+    wait(1)
+
+    # Test askForInput
+    print("Testing askForInput...")
+    input_result = askForInput("Test Input", "What is your name?")
+    print(f"askForInput result: {input_result}")
+
+    # Test waitUntilEnter
+    print("Testing waitUntilEnter... (press Enter to continue)")
+    waitUntilEnter()
+    print("waitUntilEnter test complete.")
 
 
 
